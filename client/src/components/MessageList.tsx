@@ -1,29 +1,46 @@
-import { useState } from 'react'
-import { MOCK_MESSAGES } from '../types'
+import { useState, useEffect } from 'react'
+import type { Message } from '../types'
 import MessageCard from './MessageCard'
 
-let nextId = MOCK_MESSAGES.length + 1
+const API_URL = 'http://localhost:8080/api/messages'
 
 function MessageList() {
-  const [messages, setMessages] = useState(MOCK_MESSAGES)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [loading, setLoading] = useState(true)
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
+  const [refreshCount, setRefreshCount] = useState(0)
 
-  function handleRemove(id: number) {
-    setMessages(messages.filter((m) => m.id !== id))
-  }
+  useEffect(() => {
+    fetch(API_URL, { credentials: 'include' })
+      .then((res) => res.json())
+      .then((data) => {
+        setMessages(data)
+        setLoading(false)
+      })
+  }, [refreshCount])
 
   function handleAdd() {
-    const newMessage = {
-      id: nextId++,
-      title,
-      body,
-      created_at: new Date().toISOString(),
-    }
+    fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, body }),
+      credentials: 'include',
+    }).then(() => {
+      setTitle('')
+      setBody('')
+      setRefreshCount(refreshCount + 1)
+    })
+  }
 
-    setMessages([newMessage, ...messages])
-    setTitle('')
-    setBody('')
+  function handleRemove(id: number) {
+    fetch(`${API_URL}/${id}`, { method: 'DELETE', credentials: 'include' }).then(() => {
+      setRefreshCount(refreshCount + 1)
+    })
+  }
+
+  if (loading) {
+    return <p>Carregando...</p>
   }
 
   return (
