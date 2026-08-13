@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import type { Message } from '../types'
 import MessageCard from './MessageCard'
 
@@ -33,17 +33,23 @@ function MessageList() {
     })
   }
 
-  function handleEdit(id: number, newTitle: string, newBody: string) {
-    setMessages(messages.map((m) =>
+  const handleEdit = useCallback((id: number, newTitle: string, newBody: string) => {
+    setMessages((prev) => prev.map((m) =>
       m.id === id ? { ...m, title: newTitle, body: newBody } : m
     ))
-  }
+  }, [])
 
-  function handleRemove(id: number) {
+  const handleRemove = useCallback((id: number) => {
     fetch(`${API_URL}/${id}`, { method: 'DELETE', credentials: 'include' }).then(() => {
-      setRefreshCount(refreshCount + 1)
+      setRefreshCount((prev) => prev + 1)
     })
-  }
+  }, [])
+
+  const sortedMessages = useMemo(() => {
+    return [...messages].sort((a, b) =>
+      b.created_at.localeCompare(a.created_at)
+    )
+  }, [messages])
 
   if (loading) {
     return <p>Carregando...</p>
@@ -73,7 +79,7 @@ function MessageList() {
         </div>
       </div>
 
-      {messages.map((message) => (
+      {sortedMessages.map((message) => (
         <MessageCard key={message.id} message={message} onRemove={handleRemove} onEdit={handleEdit} />
       ))}
     </div>

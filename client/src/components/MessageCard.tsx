@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import type { Message } from '../types'
 
 type MessageCardProps = {
@@ -8,6 +8,7 @@ type MessageCardProps = {
 }
 
 function MessageCard({ message, onRemove, onEdit }: MessageCardProps) {
+  console.log('MessageCard render', message.id)
   const [editing, setEditing] = useState(false)
   const [editTitle, setEditTitle] = useState(message.title)
   const [editBody, setEditBody] = useState(message.body)
@@ -72,4 +73,4 @@ function MessageCard({ message, onRemove, onEdit }: MessageCardProps) {
   )
 }
 
-export default MessageCard
+export default memo(MessageCard)
