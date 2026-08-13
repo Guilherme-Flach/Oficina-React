@@ -33,6 +33,12 @@ function MessageList() {
     })
   }
 
+  function handleEdit(id: number, newTitle: string, newBody: string) {
+    setMessages(messages.map((m) =>
+      m.id === id ? { ...m, title: newTitle, body: newBody } : m
+    ))
+  }
+
   function handleRemove(id: number) {
     fetch(`${API_URL}/${id}`, { method: 'DELETE', credentials: 'include' }).then(() => {
       setRefreshCount(refreshCount + 1)
@@ -68,7 +74,7 @@ function MessageList() {
       </div>
 
       {messages.map((message) => (
-        <MessageCard key={message.id} message={message} onRemove={handleRemove} />
+        <MessageCard key={message.id} message={message} onRemove={handleRemove} onEdit={handleEdit} />
       ))}
     </div>
   )
