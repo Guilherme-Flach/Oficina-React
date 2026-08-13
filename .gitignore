@@ -1,3 +1,7 @@
+.claude
+.direnv
+cookies.txt
+
 # Logs
 logs
 *.log
